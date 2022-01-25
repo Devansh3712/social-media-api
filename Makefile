@@ -3,7 +3,7 @@ PY = python
 all = development
 
 development:
-	uvicorn main:app --reload
+	uvicorn src.main:app --reload
 
 clean:
 	pyclean .

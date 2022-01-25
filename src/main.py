@@ -11,7 +11,7 @@ from fastapi import (
     status,
     Response
 )
-from schema import Post
+from src.schema import Post
 
 app = FastAPI()
 
