@@ -11,22 +11,10 @@ from fastapi import (
     status,
     Response
 )
+from src.database import Database
 from src.schema import Post
 
 app = FastAPI()
-
-posts = [
-    {
-        "id": 0,
-        "title": "post 1",
-        "content": "lorem ipsum"
-    },
-    {
-        "id": 1,
-        "title": "post 2",
-        "content": "lorem ipsum"
-    }
-]
 
 @app.get("/")
 async def root() -> Dict[str, Any]:
@@ -37,15 +25,23 @@ async def root() -> Dict[str, Any]:
 
 @app.get("/posts")
 async def get_posts() -> Dict[str, List[Dict[str, Any]]]:
+    posts = Database().read("posts")
+    if not posts:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
     return {
-        "data": posts
+        "data": posts # type: ignore
     }
 
 @app.post("/posts", status_code = status.HTTP_201_CREATED)
 async def create_post(post: Post) -> Dict[str, Any]:
+    posts = Database().read("posts")
+    if not posts:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
     post_dict = post.dict()
-    post_dict["id"] = posts[-1]["id"] + 1 # type: ignore
-    posts.append(post_dict)
+    post_dict["_id"] = posts[-1]["_id"] + 1 # type: ignore
+    result = Database().insert("posts", post_dict)
+    if not result:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
     return {
         "message": "Post added successfully.",
         "title": post.title,
@@ -54,9 +50,12 @@ async def create_post(post: Post) -> Dict[str, Any]:
 
 @app.get("/posts/{id}")
 async def get_post(id: int) -> Dict[str, Any]:
-    result: Optional[Dict[str, Any]] = None
-    for post in posts:
-        if post["id"] == id:
+    posts = Database().read("posts")
+    if not posts:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
+    result = None
+    for post in posts: # type: ignore
+        if post["_id"] == id:
             result = post
     if not result:
         raise HTTPException(
@@ -69,11 +68,15 @@ async def get_post(id: int) -> Dict[str, Any]:
 
 @app.delete("/posts/{id}", status_code = status.HTTP_204_NO_CONTENT)
 async def delete_post(id: int) -> Response:
-    result: bool = False
-    for post in posts:
-        if post["id"] == id:
-            posts.remove(post)
-            result = True
+    posts = Database().read("posts")
+    if not posts:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
+    result = False
+    for post in posts: # type: ignore
+        if post["_id"] == id:
+            result = Database().delete("posts", post)
+            if not result:
+                raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
     if not result:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
@@ -83,18 +86,20 @@ async def delete_post(id: int) -> Response:
 
 @app.put("/posts/{id}")
 async def update_post(id: int, updated_post: Post):
-    result: Optional[int] = None
-    for post in posts:
-        if post["id"] == id:
-            result = posts.index(post)
+    posts = Database().read("posts")
+    if not posts:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
+    result = None
+    for post in posts: # type: ignore
+        if post["_id"] == id:
+            result = Database().update("posts", post, updated_post.dict())
+            if not result:
+                raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
     if not result:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
             detail = f"Post with ID {id} doesn't exist in database."
         )
-    post_dict = updated_post.dict()
-    post_dict["id"] = id
-    posts[result] = post_dict
     return {
         "message": "Post updated successfully.",
         "title": updated_post.title,
