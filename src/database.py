@@ -29,7 +29,7 @@ class Database:
         self,
         collection: str,
         queries: List[Dict[Any, Any]] = [{}]
-    ) -> Union[bool, List[Dict[str, Any]]]:
+    ):
         if not self.collection_exists(collection):
             return False
         try:
@@ -46,7 +46,11 @@ class Database:
     ) -> bool:
         if not self.collection_exists(collection):
             return False
-        self.database[collection].update_one(document, {"$set": updated_document})
+        self.database[collection].update_one(
+            document,
+            {"$set": updated_document},
+            upsert = False
+        )
         return True
 
     def delete(
