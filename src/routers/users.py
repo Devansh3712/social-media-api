@@ -29,7 +29,7 @@ async def create_user(user: User):
 @router.get("/{username}", response_model = UserResponse)
 async def get_user(username: str):
     result = db.read(username, [{ "_id": 0 }])
-    if result == [] or result == False:
+    if not result:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
             detail = f"User {username} doesn't exist in database."
