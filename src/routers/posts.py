@@ -20,15 +20,6 @@ router = APIRouter(
 )
 db = Database()
 
-@router.get("/", response_model = List[PostResponse])
-async def get_posts(user: TokenData = Depends(get_current_user), limit: int = 10):
-    posts = db.read(user.username)
-    if not posts or limit <= 0:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
-    if len(posts) - 1 >= limit:
-        return posts[:limit]
-    return posts[:-1]
-
 @router.post("/", response_model = PostResponse, status_code = status.HTTP_201_CREATED)
 async def create_post(post: Post, user: TokenData = Depends(get_current_user)):
     posts = db.read(user.username)
@@ -40,6 +31,25 @@ async def create_post(post: Post, user: TokenData = Depends(get_current_user)):
     if not result:
         raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
     return post_dict
+
+@router.get("/", response_model = List[PostResponse])
+async def get_posts(user: TokenData = Depends(get_current_user), limit: int = 10, sort: str = "desc"):
+    if sort.lower() == "desc":
+        posts = db.read(user.username)
+        if not posts or limit <= 0:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
+        if len(posts) - 1 >= limit:
+            return posts[:limit]
+        return posts[:-1]
+    elif sort.lower() == "asc":
+        posts = db.read(user.username, sort = 1)
+        if not posts or limit <= 0:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
+        if len(posts) - 1 >= limit:
+            return posts[1:limit]
+        return posts[1:]
+    else:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
 
 @router.get("/{id}", response_model = PostResponse)
 async def get_post(id: int, user: TokenData = Depends(get_current_user)):

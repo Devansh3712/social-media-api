@@ -10,7 +10,6 @@ class Database:
     def __init__(self):
         self.client = MongoClient("mongodb://localhost:27017/")
         self.database = self.client["social-media-api"]
-        # self.collection = self.database[username]
 
     def collection_exists(self, collection: str) -> bool:
         collections = self.database.list_collection_names()
@@ -27,12 +26,13 @@ class Database:
     def read(
         self,
         collection: str,
-        queries: List[Dict[Any, Any]] = [{}]
+        queries: List[Dict[Any, Any]] = [{}],
+        sort: int = -1
     ):
         if not self.collection_exists(collection):
             return False
         try:
-            data = self.database[collection].find(*queries).sort("_id", -1)
+            data = self.database[collection].find(*queries).sort("_id", sort)
             return list(data)
         except:
             return False
