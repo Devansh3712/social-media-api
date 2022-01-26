@@ -8,6 +8,7 @@ from fastapi import (
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from ..database import Database
 from ..oauth2 import create_access_token
+from ..schemas import Token
 from ..utils import (
     hash_password,
     verify_password
@@ -16,7 +17,7 @@ from ..utils import (
 router = APIRouter(tags = ["Authentication"])
 db = Database()
 
-@router.post("/login")
+@router.post("/login", response_model = Token)
 async def login_user(user: OAuth2PasswordRequestForm = Depends()):
     result = db.read(user.username, [{ "_id": 0 }])
     if not result:

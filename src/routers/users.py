@@ -1,8 +1,7 @@
 from fastapi import (
     APIRouter,
     HTTPException,
-    status,
-    Response
+    status
 )
 from ..database import Database
 from ..schemas import (
