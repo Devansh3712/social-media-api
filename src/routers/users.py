@@ -11,10 +11,13 @@ from ..schemas import (
 )
 from ..utils import hash_password
 
-router = APIRouter()
+router = APIRouter(
+    prefix = "/users",
+    tags = ["Users"]
+)
 db = Database()
 
-@router.post("/users", response_model = UserResponse, status_code = status.HTTP_201_CREATED)
+@router.post("/", response_model = UserResponse, status_code = status.HTTP_201_CREATED)
 async def create_user(user: User):
     if not db.collection_exists(user.username):
         user_dict = user.dict()
@@ -24,7 +27,7 @@ async def create_user(user: User):
         return user.dict()
     raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@router.get("/users/{username}", response_model = UserResponse)
+@router.get("/{username}", response_model = UserResponse)
 async def get_user(username: str):
     result = db.read(username, [{ "_id": 0 }])
     if result == [] or result == False:

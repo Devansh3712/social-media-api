@@ -11,7 +11,10 @@ from ..schemas import (
     PostResponse
 )
 
-router = APIRouter(prefix = "/posts")
+router = APIRouter(
+    prefix = "/posts",
+    tags = ["Posts"]
+)
 db = Database()
 
 @router.get("/{user}", response_model = List[PostResponse])
