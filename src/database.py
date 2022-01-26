@@ -32,7 +32,7 @@ class Database:
         if not self.collection_exists(collection):
             return False
         try:
-            data = self.database[collection].find(*queries)
+            data = self.database[collection].find(*queries).sort("_id", -1)
             return list(data)
         except:
             return False
@@ -47,7 +47,7 @@ class Database:
             return False
         self.database[collection].update_one(
             document,
-            {"$set": updated_document},
+            { "$set": updated_document },
             upsert = False
         )
         return True

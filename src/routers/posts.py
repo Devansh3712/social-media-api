@@ -21,11 +21,13 @@ router = APIRouter(
 db = Database()
 
 @router.get("/", response_model = List[PostResponse])
-async def get_posts(user: TokenData = Depends(get_current_user)):
+async def get_posts(user: TokenData = Depends(get_current_user), limit: int = 10):
     posts = db.read(user.username)
-    if not posts:
+    if not posts or limit <= 0:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
-    return posts[1:]
+    if len(posts) - 1 >= limit:
+        return posts[:limit]
+    return posts[:-1]
 
 @router.post("/", response_model = PostResponse, status_code = status.HTTP_201_CREATED)
 async def create_post(post: Post, user: TokenData = Depends(get_current_user)):
