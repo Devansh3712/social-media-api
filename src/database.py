@@ -4,12 +4,13 @@ from typing import (
     List,
     Union
 )
-import pymongo
+from pymongo import MongoClient
 
 class Database:
     def __init__(self):
-        self.client = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.client = MongoClient("mongodb://localhost:27017/")
         self.database = self.client["social-media-api"]
+        # self.collection = self.database[username]
 
     def collection_exists(self, collection: str) -> bool:
         collections = self.database.list_collection_names()
@@ -20,8 +21,6 @@ class Database:
         collection: str,
         document: Dict[str, Any]
     ) -> bool:
-        if not self.collection_exists(collection):
-            return False
         self.database[collection].insert_one(document)
         return True
 

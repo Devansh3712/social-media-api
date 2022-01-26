@@ -10,6 +10,7 @@ python = "^3.10"
 fastapi = {extras = ["all"], version = "^0.73.0"}
 mypy = "^0.931"
 pymongo = "^4.0.1"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 [tool.poetry.dev-dependencies]
 

@@ -13,3 +13,12 @@ class PostResponse(BaseModel):
     id: int = Field(..., alias = "_id")
     title: str
     content: str
+
+class User(BaseModel):
+    username: str
+    password: str
+    timestamp: datetime = datetime.now()
+
+class UserResponse(BaseModel):
+    username: str
+    timestamp: datetime
