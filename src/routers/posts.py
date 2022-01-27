@@ -22,7 +22,7 @@ db = Database()
 
 @router.post("/", response_model = PostResponse, status_code = status.HTTP_201_CREATED)
 async def create_post(post: Post, user: TokenData = Depends(get_current_user)):
-    posts = db.read(user.username)
+    posts = db.read(user.username, sort = 1)
     if not posts:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND)
     post_dict = post.dict()

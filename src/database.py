@@ -5,10 +5,11 @@ from typing import (
     Union
 )
 from pymongo import MongoClient
+from .config import settings
 
 class Database:
     def __init__(self):
-        self.client = MongoClient("mongodb://localhost:27017/")
+        self.client = MongoClient(settings.mongodb_uri)
         self.database = self.client["social-media-api"]
 
     def collection_exists(self, collection: str) -> bool:
