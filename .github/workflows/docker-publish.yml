@@ -32,8 +32,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/social-media-api:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/social-media-api:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/social-media-api:buildcache,mode=max
   
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
