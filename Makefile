@@ -7,7 +7,7 @@ clean:
 	pyclean .
 
 lint:
-	mypy src
+	mypy .
 
 test:
 	pytest -v

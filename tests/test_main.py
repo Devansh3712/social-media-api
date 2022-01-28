@@ -1,11 +1,15 @@
 from datetime import datetime
 from fastapi.testclient import TestClient
-import pytest
 from src.main import app
 from src.database import Database
 
 client = TestClient(app)
 db = Database()
+
+user = {
+    "username": "test",
+    "password": "test"
+}
 
 def test_root():
     response = client.get("/")
@@ -14,12 +18,21 @@ def test_root():
     assert response.json().get("source_code") == "https://github.com/Devansh3712/social-media-api"
 
 def test_create_user():
-    user = {
-        "username": "test",
-        "password": "test",
-        "timestamp": str(datetime.now())
-    }
     response = client.post("/users/", json = user)
-    db.delete("test", user)
+    db.database["test"].drop()
     assert response.status_code == 201
     assert response.json().get("username") == user["username"]
+
+def test_get_user():
+    client.post("/users/", json = user)
+    response = client.get("/users/test/", data = user)
+    db.database["test"].drop()
+    assert response.status_code == 200
+    assert response.json().get("username") == user["username"]
+
+def test_login_user():
+    client.post("/users/", json = user)
+    response = client.post("/login", data = user)
+    db.database["test"].drop()
+    assert response.status_code == 200
+    assert response.json().get("token_type") == "bearer"
