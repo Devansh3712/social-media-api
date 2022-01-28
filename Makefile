@@ -1,5 +1,3 @@
-PY = python
-
 all = development
 
 development:
@@ -10,3 +8,6 @@ clean:
 
 lint:
 	mypy src
+
+test:
+	pytest -v
