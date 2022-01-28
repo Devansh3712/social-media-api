@@ -4,17 +4,6 @@
 - Project file structure
 ```
 .
-├── Dockerfile
-├── LICENSE
-├── Makefile
-├── Procfile
-├── README.md
-├── docker-compose.yml
-├── example.env
-├── mypy.ini
-├── poetry.lock
-├── pyproject.toml
-├── requirements.txt
 └── src
     ├── __init__.py
     ├── config.py
@@ -33,7 +22,14 @@
 
 ### Setup using Docker
 The API instance runs on `https://localhost:8000` using default values of Dockerfile.
+
+- Building a new image
 ```bash
-> docker build -t fastapi .
+> docker build -t <tag-name> .
 > docker-compose up -d
+```
+
+- Pulling the existing image
+```bash
+> docker pull devansh3712/social-media-api
 ```
