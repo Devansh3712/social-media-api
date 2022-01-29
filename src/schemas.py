@@ -22,10 +22,12 @@ class PostResponse(BaseModel):
 class User(BaseModel):
     username: str
     password: str
+    posts: int = 0
     timestamp: datetime = datetime.now()
 
 class UserResponse(BaseModel):
     username: str
+    posts: int
     timestamp: datetime
 
 class Token(BaseModel):

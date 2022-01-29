@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List
 from fastapi import (
     APIRouter,
@@ -28,7 +29,11 @@ async def create_post(post: Post, user: TokenData = Depends(get_current_user)):
     post_dict = post.dict()
     post_dict["_id"] = posts[-1]["_id"] + 1
     result = db.insert(user.username, post_dict)
-    if not result:
+    user_info = db.read(user.username, [{ "_id": 0 }])[0]
+    updated_user_info = deepcopy(user_info)
+    updated_user_info["posts"] = len(posts)
+    update_result = db.update(user.username, user_info, updated_user_info)
+    if not result or not update_result:
         raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR)
     return post_dict
 
@@ -83,6 +88,10 @@ async def delete_post(id: int, user: TokenData = Depends(get_current_user)) -> R
             status_code = status.HTTP_404_NOT_FOUND,
             detail = f"Post with ID {id} doesn't exist in database."
         )
+    user_info = db.read(user.username, [{ "_id": 0 }])[0]
+    updated_user_info = deepcopy(user_info)
+    updated_user_info["posts"] = len(posts) - 2
+    update_result = db.update(user.username, user_info, updated_user_info)
     return Response(status_code = status.HTTP_204_NO_CONTENT)
 
 @router.put("/{id}", response_model = PostResponse)
